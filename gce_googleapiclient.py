@@ -49,7 +49,7 @@ Arguments:
 
 Options:
     -d, --debug                         Set debugging level to DEBUG on log file
-    -h, --help                          Prints the application help
+    --help                              Prints the application help
     -l, --list                          Needed by Ansible, but actually doesn't change anything
     --refresh-cache                     Force refresh of cache by making API requests
 
@@ -117,14 +117,18 @@ class GCloudAPI(object):
 
     def __init__(self, api_version=API_VERSION):
 
-        self.credentials = GCloudAPI._get_credentials()
         self.api_version = api_version
         self.services = {}
+        self.credentials = None
 
-        for service_type in ['compute', 'cloudbilling']:
-            self.get_service(service_type)
 
     def get_service(self, service_name):
+
+        if not self.credentials:
+            self.credentials = GCloudAPI._get_credentials()
+            for service_type in ['compute', 'cloudbilling']:
+                self.get_service(service_type)
+
 
         if service_name not in self.services:
             self.services[service_name] = discovery.build(serviceName=service_name,
